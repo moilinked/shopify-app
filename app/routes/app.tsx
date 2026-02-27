@@ -8,8 +8,11 @@ import { authenticate } from "../shopify.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
 
+  const url = new URL(request.url);
+  const host = url.searchParams.get("host") || "";
+
   // eslint-disable-next-line no-undef
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  return { apiKey: process.env.SHOPIFY_API_KEY || "", host };
 };
 
 export default function App() {

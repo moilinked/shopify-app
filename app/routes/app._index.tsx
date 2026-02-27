@@ -4,23 +4,15 @@ import type {
   HeadersFunction,
   LoaderFunctionArgs,
 } from "react-router";
-import { useFetcher, useLoaderData } from "react-router";
+import { useFetcher } from "react-router";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { getSessionToken } from "@shopify/app-bridge/utilities";
-import createApp from "@shopify/app-bridge";
+import { useAuthFetch } from "../utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
-
-  const url = new URL(request.url);
-  const host = url.searchParams.get("host");
-  if (!host) {
-    throw new Error("Missing host parameter in URL");
-  }
-
-  return { host, apiKey: process.env.SHOPIFY_API_KEY };
+  return {};
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -94,9 +86,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { host, apiKey } = useLoaderData<typeof loader>();
-
   const shopify = useAppBridge();
+  const { get } = useAuthFetch();
+
   const isLoading =
     ["loading", "submitting"].includes(fetcher.state) &&
     fetcher.formMethod === "POST";
@@ -108,21 +100,7 @@ export default function Index() {
   }, [fetcher.data?.product?.id, shopify]);
 
   const getAppSessionToken = async () => {
-    console.log("host ============================= ", host);
-    console.log("api key ============================= ", apiKey);
-    if (!apiKey || !host) {
-      return;
-    }
-    const app = createApp({ apiKey, host });
-    const token = await getSessionToken(app);
-    console.log("session token ============================= ", token);
-    const result = await fetch(`http://localhost:9998/protected/ping`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-    });
+    const result = await get("http://localhost:9998/protected/ping");
     const data = await result.json();
     console.log("data ============================= ", data);
   };

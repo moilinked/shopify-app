@@ -1,4 +1,14 @@
+import { useAuthFetch } from "../utils";
+
 export default function AdditionalPage() {
+  const { get } = useAuthFetch();
+
+  const getAppSessionToken = async () => {
+    const result = await get("http://localhost:9998/protected/ping");
+    const data = await result.json();
+    console.log("data ============================= ", data);
+  };
+
   return (
     <s-page heading="Additional page">
       <s-section heading="Multiple pages">
@@ -19,6 +29,7 @@ export default function AdditionalPage() {
           <code>&lt;ui-nav-menu&gt;</code> component found in{" "}
           <code>app/routes/app.jsx</code>.
         </s-paragraph>
+        <s-button onClick={getAppSessionToken}>get app session token</s-button>
       </s-section>
       <s-section slot="aside" heading="Resources">
         <s-unordered-list>
