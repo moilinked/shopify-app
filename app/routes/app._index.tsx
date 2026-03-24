@@ -100,7 +100,7 @@ export default function Index() {
   }, [fetcher.data?.product?.id, shopify]);
 
   const getAppSessionToken = async () => {
-    const result = await get("http://localhost:9998/protected/ping");
+    const result = await get("http://localhost:9998/admin/ping");
     const data = await result.json();
     console.log("data ============================= ", data);
   };
